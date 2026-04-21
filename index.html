@@ -1,114 +1,707 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saleem's MEPCO Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .card-gradient { background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%); }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Saleem's Electricity Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0d0f12;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --border: #2a2f3d;
+    --border2: #3a4055;
+    --accent: #3b82f6;
+    --accent2: #60a5fa;
+    --accent-dim: rgba(59,130,246,0.12);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.1);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.1);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245,158,11,0.1);
+    --text: #e8ecf4;
+    --text2: #8892a4;
+    --text3: #4f5b70;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Lock screen */
+  #lock {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    background-image: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.08) 0%, transparent 70%);
+  }
+  .lock-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem 2rem;
+    width: 320px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .lock-icon {
+    width: 48px; height: 48px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 12px;
+    margin: 0 auto;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .lock-box h1 { font-size: 18px; font-weight: 600; color: var(--text); }
+  .lock-box p { font-size: 13px; color: var(--text2); }
+  .lock-box input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .lock-box input:focus { border-color: var(--accent); }
+  .lock-err { font-size: 12px; color: var(--red); min-height: 16px; }
+
+  /* App shell */
+  #app { display: none; min-height: 100vh; flex-direction: column; }
+  #app.visible { display: flex; }
+
+  /* Header */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .header-logo {
+    width: 28px; height: 28px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  header h1 { font-size: 15px; font-weight: 600; color: var(--text); }
+  .header-meta { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+  .btn-logout {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text2);
+    font-size: 12px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: all 0.15s;
+  }
+  .btn-logout:hover { border-color: var(--border2); color: var(--text); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-item {
+    flex: 1;
+    padding: 0.85rem 1.25rem;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--mono); }
+  .stat-val { font-size: 22px; font-weight: 600; color: var(--text); font-family: var(--mono); }
+  .stat-sub { font-size: 11px; color: var(--text2); }
+
+  /* Toolbar */
+  .toolbar {
+    padding: 0.85rem 1.5rem;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    flex-wrap: wrap;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 180px; }
+  .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); pointer-events: none; }
+  .search-wrap input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 12px 8px 34px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: var(--sans);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap input::placeholder { color: var(--text3); }
+
+  /* Buttons */
+  .btn {
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-family: var(--sans);
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text2);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--border2); color: var(--text); background: var(--surface2); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+  .btn.danger { background: var(--red-dim); border-color: rgba(239,68,68,0.3); color: var(--red); }
+  .btn.danger:hover { background: rgba(239,68,68,0.2); }
+  .btn.sm { padding: 5px 10px; font-size: 12px; }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* Grid */
+  .grid-wrap { padding: 1.25rem 1.5rem; flex: 1; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--text3);
+    font-size: 14px;
+  }
+  .empty-state .empty-icon { font-size: 32px; margin-bottom: 0.75rem; }
+
+  /* Meter card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+  }
+  .card:hover { border-color: var(--border2); }
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .card-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .card-ref { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.03em; margin-top: 2px; }
+  .units-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .units-badge.low { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+  .units-badge.high { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+  .units-badge.very-high { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+  .divider { height: 1px; background: var(--border); margin: 2px 0; }
+  .card-row { display: flex; justify-content: space-between; align-items: center; }
+  .card-row-label { font-size: 11px; color: var(--text3); }
+  .card-row-val { font-size: 12px; font-family: var(--mono); color: var(--text2); }
+  .card-actions { display: flex; gap: 6px; margin-top: 4px; }
+
+  /* Loading spinner */
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-row {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--text2); font-size: 13px;
+    padding: 3rem 1.5rem;
+  }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    font-size: 13px;
+    color: var(--text);
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    max-width: 280px;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+  #toast.success { border-color: rgba(34,197,94,0.4); color: var(--green); }
+  #toast.error { border-color: rgba(239,68,68,0.4); color: var(--red); }
+
+  /* Modal */
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(2px);
+  }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem 1.5rem;
+    width: 360px;
+    max-width: calc(100vw - 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    animation: modal-in 0.18s ease;
+  }
+  @keyframes modal-in { from { opacity:0; transform:scale(0.96) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }
+  .modal h2 { font-size: 16px; font-weight: 600; color: var(--text); }
+  .modal-desc { font-size: 13px; color: var(--text2); }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; font-family: var(--mono); }
+  .field input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 9px 12px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: var(--sans);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field input:focus { border-color: var(--accent); }
+  .field input[readonly] { opacity: 0.5; cursor: not-allowed; }
+  .modal-err { font-size: 12px; color: var(--red); min-height: 16px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* Cycle tag */
+  .cycle-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--amber-dim);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    color: var(--amber);
+    font-family: var(--mono);
+  }
+
+  @media (max-width: 600px) {
+    .stats-bar { flex-direction: column; gap: 0; }
+    .grid { grid-template-columns: 1fr; }
+    header { padding: 0 1rem; }
+    .toolbar { padding: 0.75rem 1rem; }
+    .grid-wrap { padding: 1rem; }
+  }
+</style>
 </head>
-<body class="bg-slate-100 min-h-screen p-4 md:p-8">
+<body>
 
-    <div class="max-w-4xl mx-auto">
-        <header class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-slate-800">Saleem's Electricity Dashboard</h1>
-            <p class="text-slate-500">MEPCO Bill Management & Manual Tracking</p>
-        </header>
+<!-- Lock Screen -->
+<div id="lock">
+  <div class="lock-box">
+    <div class="lock-icon">⚡</div>
+    <h1>Electricity dashboard</h1>
+    <p>Saleem's MEPCO meter management</p>
+    <input type="password" id="pass-input" placeholder="Password" autocomplete="current-password" />
+    <div class="lock-err" id="lock-err"></div>
+    <button class="btn primary" id="unlock-btn" style="width:100%">Unlock</button>
+  </div>
+</div>
 
-        <div id="summary" class="grid grid-cols-2 gap-4 mb-8">
-            <div class="bg-blue-600 text-white p-4 rounded-xl shadow-lg">
-                <p class="text-sm opacity-80">Total Units (Recorded)</p>
-                <h2 id="total-units" class="text-2xl font-bold">0</h2>
-            </div>
-            <div class="bg-emerald-600 text-white p-4 rounded-xl shadow-lg">
-                <p class="text-sm opacity-80">Active Connections</p>
-                <h2 id="active-cons" class="text-2xl font-bold">0</h2>
-            </div>
-        </div>
-
-        <div class="bg-white p-4 rounded-xl shadow-sm mb-8 flex gap-2">
-            <input type="text" id="manual-ref" placeholder="Quick Search Ref..." class="flex-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none">
-        </div>
-
-        <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="animate-pulse bg-white h-40 rounded-xl"></div>
-        </div>
+<!-- Main App -->
+<div id="app">
+  <header>
+    <div class="header-left">
+      <div class="header-logo">⚡</div>
+      <div>
+        <h1>Saleem's electricity dashboard</h1>
+      </div>
     </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="cycle-tag">⟳ Cycle: 26th</span>
+      <button class="btn-logout" id="logout-btn">Lock</button>
+    </div>
+  </header>
 
-    <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwdDfoylJbUe5-OfhN8M2BlXvxXMD6qmeNEB_uEUVjMReMQNv4YH7UVUQquRSKzkC31/exec';
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-item"><div class="stat-label">Meters</div><div class="stat-val" id="s-count">—</div></div>
+    <div class="stat-item"><div class="stat-label">Total units</div><div class="stat-val" id="s-units">—</div><div class="stat-sub">this cycle</div></div>
+    <div class="stat-item"><div class="stat-label">Highest usage</div><div class="stat-val" id="s-high">—</div><div class="stat-sub" id="s-high-name">—</div></div>
+    <div class="stat-item"><div class="stat-label">Last updated</div><div class="stat-val" id="s-date" style="font-size:14px;padding-top:4px">—</div></div>
+  </div>
 
-        async function fetchData() {
-            const res = await fetch(API_URL);
-            const data = await res.json();
-            renderCards(data);
-            updateSummary(data);
-        }
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search" placeholder="Search by name or ref no..." />
+    </div>
+    <button class="btn primary" id="add-btn">+ Add meter</button>
+    <button class="btn" id="refresh-btn">↻ Refresh</button>
+  </div>
 
-        function renderCards(data) {
-            const container = document.getElementById('cards-container');
-            container.innerHTML = data.map(item => `
-                <div class="card-gradient p-5 rounded-2xl shadow-md border border-slate-200 flex flex-col gap-4">
-                    <div>
-                        <span class="text-xs font-bold text-blue-600 uppercase">Reference Number</span>
-                        <h3 class="text-lg font-mono font-bold text-slate-700">${item.refNo}</h3>
-                    </div>
+  <div class="grid-wrap">
+    <div id="grid-content">
+      <div class="loading-row"><div class="spinner"></div> Loading meters…</div>
+    </div>
+  </div>
+</div>
 
-                    <div class="grid grid-cols-2 gap-4 bg-white p-3 rounded-lg border border-slate-100">
-                        <div>
-                            <p class="text-xs text-slate-400">Prev. Reading</p>
-                            <p class="font-bold">${item.prevReading}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-slate-400">MEPCO Reading</p>
-                            <p class="font-bold text-emerald-600">${item.currReading}</p>
-                        </div>
-                    </div>
+<!-- Toast -->
+<div id="toast"></div>
 
-                    <div class="flex flex-col gap-2">
-                        <label class="text-xs font-semibold text-slate-500">Record Manual Reading:</label>
-                        <div class="flex gap-2">
-                            <input type="number" id="input-${item.refNo}" placeholder="Enter current" 
-                                class="w-full border rounded-lg px-3 py-2 text-sm focus:border-blue-500 outline-none">
-                            <button onclick="saveReading('${item.refNo}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition">Save</button>
-                        </div>
-                    </div>
+<!-- Modal placeholder -->
+<div id="modal-root"></div>
 
-                    <div class="flex justify-between items-center pt-2 border-t border-dashed">
-                        <a href="https://bill.pitc.com.pk/gbill.aspx?refno=${item.refNo}" target="_blank" class="text-blue-500 text-sm font-medium hover:underline">View Official Bill →</a>
-                        <div class="text-right">
-                            <p class="text-xs text-slate-400">Consumed</p>
-                            <p class="text-xl font-black text-slate-800">${item.units} <span class="text-xs font-normal">kWh</span></p>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
+<script>
+const API = "https://sheetdb.io/api/v1/azimc928frtob";
+const PASS = "mepco2026";
+const SHEET = "Bills";
 
-        function updateSummary(data) {
-            const total = data.reduce((acc, curr) => acc + curr.units, 0);
-            document.getElementById('total-units').innerText = total;
-            document.getElementById('active-cons').innerText = data.length;
-        }
+let meters = [];
+let searchVal = "";
 
-        async function saveReading(refNo) {
-            const val = document.getElementById(`input-${refNo}`).value;
-            if(!val) return alert("Please enter a reading");
+/* ── Auth ── */
+function tryLogin() {
+  if (document.getElementById("pass-input").value === PASS) {
+    document.getElementById("lock").style.display = "none";
+    document.getElementById("app").classList.add("visible");
+    loadMeters();
+  } else {
+    document.getElementById("lock-err").textContent = "Incorrect password.";
+  }
+}
+document.getElementById("unlock-btn").addEventListener("click", tryLogin);
+document.getElementById("pass-input").addEventListener("keydown", e => e.key === "Enter" && tryLogin());
+document.getElementById("logout-btn").addEventListener("click", () => {
+  document.getElementById("app").classList.remove("visible");
+  document.getElementById("lock").style.display = "flex";
+  document.getElementById("pass-input").value = "";
+  document.getElementById("lock-err").textContent = "";
+});
 
-            // In a real scenario, you'd POST this to your GAS API
-            alert(`Saving ${val} for Ref: ${refNo}... (Update API_URL to enable writing)`);
-            
-            /* await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ refNo: refNo, manualReading: val })
-            });
-            fetchData(); // Refresh data
-            */
-        }
+/* ── Toast ── */
+let toastTimer;
+function toast(msg, type = "") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "show " + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = "", 3000);
+}
 
-        fetchData();
-    </script>
+/* ── API helpers ── */
+async function apiGet() {
+  const r = await fetch(`${API}?sheet=${SHEET}`);
+  if (!r.ok) throw new Error("Failed to fetch");
+  return r.json();
+}
+
+async function apiCreate(row) {
+  const r = await fetch(API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: [row], sheet: SHEET })
+  });
+  if (!r.ok) throw new Error("Failed to create");
+  return r.json();
+}
+
+async function apiUpdate(refNo, row) {
+  const r = await fetch(`${API}/REFERENCE NO/${encodeURIComponent(refNo)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: row, sheet: SHEET })
+  });
+  if (!r.ok) throw new Error("Failed to update");
+  return r.json();
+}
+
+async function apiDelete(refNo) {
+  const r = await fetch(`${API}/REFERENCE NO/${encodeURIComponent(refNo)}?sheet=${SHEET}`, {
+    method: "DELETE"
+  });
+  if (!r.ok) throw new Error("Failed to delete");
+  return r.json();
+}
+
+/* ── Load ── */
+async function loadMeters() {
+  document.getElementById("grid-content").innerHTML = `<div class="loading-row"><div class="spinner"></div> Loading meters…</div>`;
+  try {
+    const data = await apiGet();
+    meters = data.map(row => ({
+      ref: String(row["REFERENCE NO"] || "").trim(),
+      name: String(row["Meter Name"] || row["REFERENCE NO"] || "").trim(),
+      lastReading: parseInt(row["Last Month MEPCO Reading"]) || 0,
+      manualReading: parseInt(row["Manual Reading"]) || 0,
+      readingDate: String(row["Manual Reading Date"] || "").trim(),
+      units: parseInt(row["Units Consumed"]) || 0,
+    }));
+    updateStats();
+    renderGrid();
+  } catch (e) {
+    document.getElementById("grid-content").innerHTML = `<div class="loading-row" style="color:var(--red)">⚠ Could not load data. Check API or network.</div>`;
+    toast("Failed to load meters", "error");
+  }
+}
+
+/* ── Stats ── */
+function updateStats() {
+  document.getElementById("s-count").textContent = meters.length;
+  const total = meters.reduce((s, m) => s + Math.max(0, m.manualReading - m.lastReading), 0);
+  document.getElementById("s-units").textContent = total;
+  if (meters.length) {
+    const hi = meters.reduce((a, b) => (b.manualReading - b.lastReading) > (a.manualReading - a.lastReading) ? b : a);
+    document.getElementById("s-high").textContent = Math.max(0, hi.manualReading - hi.lastReading);
+    document.getElementById("s-high-name").textContent = hi.name;
+  }
+  const dates = meters.map(m => m.readingDate).filter(Boolean);
+  document.getElementById("s-date").textContent = dates.length ? dates[dates.length - 1] : "—";
+}
+
+/* ── Render grid ── */
+function renderGrid() {
+  const filtered = meters.filter(m =>
+    m.ref.includes(searchVal) ||
+    m.name.toLowerCase().includes(searchVal.toLowerCase())
+  );
+  if (!filtered.length) {
+    document.getElementById("grid-content").innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div>No meters found</div></div>`;
+    return;
+  }
+  const cards = filtered.map(m => {
+    const u = m.manualReading - m.lastReading;
+    const badgeClass = u > 150 ? "very-high" : u > 80 ? "high" : "low";
+    return `<div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-name">${esc(m.name)}</div>
+          <div class="card-ref">${esc(m.ref)}</div>
+        </div>
+        <span class="units-badge ${badgeClass}">${u} units</span>
+      </div>
+      <div class="divider"></div>
+      <div class="card-row"><span class="card-row-label">Last MEPCO reading</span><span class="card-row-val">${m.lastReading}</span></div>
+      <div class="card-row"><span class="card-row-label">Current reading</span><span class="card-row-val">${m.manualReading}</span></div>
+      <div class="card-row"><span class="card-row-label">Reading date</span><span class="card-row-val">${esc(m.readingDate) || "—"}</span></div>
+      <div class="divider"></div>
+      <div class="card-actions">
+        <button class="btn sm primary" onclick="viewBill('${esc(m.ref)}')">View bill</button>
+        <button class="btn sm" onclick="openEdit('${esc(m.ref)}')">Edit</button>
+        <button class="btn sm danger" onclick="openDelete('${esc(m.ref)}')">Delete</button>
+      </div>
+    </div>`;
+  }).join("");
+  document.getElementById("grid-content").innerHTML = `<div class="grid">${cards}</div>`;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+/* ── Search ── */
+document.getElementById("search").addEventListener("input", e => {
+  searchVal = e.target.value;
+  renderGrid();
+});
+
+/* ── Refresh ── */
+document.getElementById("refresh-btn").addEventListener("click", loadMeters);
+
+/* ── View bill ── */
+function viewBill(ref) {
+  window.open("https://bill.pitc.com.pk/gbill.aspx?refno=" + ref, "_blank");
+}
+
+/* ── Modal helpers ── */
+function closeModal() {
+  document.getElementById("modal-root").innerHTML = "";
+}
+document.getElementById("modal-root").addEventListener("click", e => {
+  if (e.target.classList.contains("modal-bg")) closeModal();
+});
+
+/* ── Add meter ── */
+document.getElementById("add-btn").addEventListener("click", () => {
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2,"0");
+  const mm = String(today.getMonth()+1).padStart(2,"0");
+  const yyyy = today.getFullYear();
+  const todayStr = `${dd}-${mm}-${yyyy}`;
+
+  document.getElementById("modal-root").innerHTML = `
+  <div class="modal-bg">
+    <div class="modal">
+      <h2>Add new meter</h2>
+      <div class="field"><label>Meter name</label><input id="m-name" placeholder="e.g. Home, Shop, Office…" /></div>
+      <div class="field"><label>Reference number (14 digits)</label><input id="m-ref" placeholder="16157350713605" maxlength="14" /></div>
+      <div class="field"><label>Last month MEPCO reading</label><input id="m-last" type="number" placeholder="0" /></div>
+      <div class="field"><label>Current manual reading</label><input id="m-manual" type="number" placeholder="0" /></div>
+      <div class="field"><label>Reading date (DD-MM-YYYY)</label><input id="m-date" value="${todayStr}" /></div>
+      <div class="modal-err" id="m-err"></div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal()">Cancel</button>
+        <button class="btn primary" id="m-save-btn" onclick="saveAdd()">Add meter</button>
+      </div>
+    </div>
+  </div>`;
+});
+
+async function saveAdd() {
+  const g = id => document.getElementById(id)?.value.trim();
+  const name = g("m-name"), ref = g("m-ref"), last = g("m-last"), manual = g("m-manual"), date = g("m-date");
+  const err = document.getElementById("m-err");
+  if (!name) { err.textContent = "Meter name is required."; return; }
+  if (!/^[0-9]{14}$/.test(ref)) { err.textContent = "Reference must be exactly 14 digits."; return; }
+  if (meters.find(m => m.ref === ref)) { err.textContent = "This reference number already exists."; return; }
+  if (isNaN(parseInt(last)) || isNaN(parseInt(manual))) { err.textContent = "Readings must be valid numbers."; return; }
+  const units = parseInt(manual) - parseInt(last);
+  const btn = document.getElementById("m-save-btn");
+  btn.disabled = true; btn.textContent = "Adding…";
+  try {
+    await apiCreate({
+      "REFERENCE NO": ref,
+      "Meter Name": name,
+      "Last Month MEPCO Reading": parseInt(last),
+      "Manual Reading": parseInt(manual),
+      "Manual Reading Date": date,
+      "Units Consumed": units
+    });
+    closeModal();
+    toast("Meter added successfully", "success");
+    await loadMeters();
+  } catch (e) {
+    err.textContent = "Failed to save. Check API.";
+    btn.disabled = false; btn.textContent = "Add meter";
+    toast("Error adding meter", "error");
+  }
+}
+
+/* ── Edit meter ── */
+function openEdit(ref) {
+  const m = meters.find(x => x.ref === ref);
+  if (!m) return;
+  document.getElementById("modal-root").innerHTML = `
+  <div class="modal-bg">
+    <div class="modal">
+      <h2>Edit meter</h2>
+      <div class="field"><label>Meter name</label><input id="e-name" value="${esc(m.name)}" /></div>
+      <div class="field"><label>Reference number</label><input id="e-ref" value="${esc(m.ref)}" readonly /></div>
+      <div class="field"><label>Last month MEPCO reading</label><input id="e-last" type="number" value="${m.lastReading}" /></div>
+      <div class="field"><label>Current manual reading</label><input id="e-manual" type="number" value="${m.manualReading}" /></div>
+      <div class="field"><label>Reading date (DD-MM-YYYY)</label><input id="e-date" value="${esc(m.readingDate)}" /></div>
+      <div class="modal-err" id="e-err"></div>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal()">Cancel</button>
+        <button class="btn primary" id="e-save-btn" onclick="saveEdit('${esc(ref)}')">Save changes</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function saveEdit(ref) {
+  const g = id => document.getElementById(id)?.value.trim();
+  const name = g("e-name"), last = g("e-last"), manual = g("e-manual"), date = g("e-date");
+  const err = document.getElementById("e-err");
+  if (!name) { err.textContent = "Meter name is required."; return; }
+  if (isNaN(parseInt(last)) || isNaN(parseInt(manual))) { err.textContent = "Readings must be valid numbers."; return; }
+  const units = parseInt(manual) - parseInt(last);
+  const btn = document.getElementById("e-save-btn");
+  btn.disabled = true; btn.textContent = "Saving…";
+  try {
+    await apiUpdate(ref, {
+      "Meter Name": name,
+      "Last Month MEPCO Reading": parseInt(last),
+      "Manual Reading": parseInt(manual),
+      "Manual Reading Date": date,
+      "Units Consumed": units
+    });
+    closeModal();
+    toast("Meter updated", "success");
+    await loadMeters();
+  } catch (e) {
+    err.textContent = "Failed to save. Check API.";
+    btn.disabled = false; btn.textContent = "Save changes";
+    toast("Error updating meter", "error");
+  }
+}
+
+/* ── Delete meter ── */
+function openDelete(ref) {
+  const m = meters.find(x => x.ref === ref);
+  document.getElementById("modal-root").innerHTML = `
+  <div class="modal-bg">
+    <div class="modal">
+      <h2>Delete meter?</h2>
+      <p class="modal-desc">This will permanently remove <strong style="color:var(--text);font-family:var(--mono)">${esc(ref)}</strong> (${esc(m?.name || "")}) from the sheet. This cannot be undone.</p>
+      <div class="modal-actions" style="margin-top:4px">
+        <button class="btn" onclick="closeModal()">Cancel</button>
+        <button class="btn danger" id="d-btn" onclick="confirmDelete('${esc(ref)}')">Delete</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function confirmDelete(ref) {
+  const btn = document.getElementById("d-btn");
+  btn.disabled = true; btn.textContent = "Deleting…";
+  try {
+    await apiDelete(ref);
+    closeModal();
+    toast("Meter deleted", "success");
+    await loadMeters();
+  } catch (e) {
+    toast("Error deleting meter", "error");
+    btn.disabled = false; btn.textContent = "Delete";
+  }
+}
+</script>
 </body>
 </html>
