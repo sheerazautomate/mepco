@@ -303,21 +303,14 @@ function render() {
 // --- ACTIONS ---
 function bill(r) {
   const form = document.createElement("form");
-  form.method = "GET";
-  form.action = "https://bill.pitc.com.pk/gbill.aspx";
+  form.method = "POST";
+  form.action = "https://bill.pitc.com.pk/gbill.aspx?refno=" + r;
   form.target = "_blank";
-
-  const input = document.createElement("input");
-  input.type = "hidden";
-  input.name = "refno";
-  input.value = r;
-
-  form.appendChild(input);
   document.body.appendChild(form);
   form.submit();
   document.body.removeChild(form);
 }
-async function del(ref) {
+  async function del(ref) {
   if (!confirm("Are you sure you want to delete this meter?")) return;
   
   toggleLoad(true);
