@@ -302,7 +302,20 @@ function render() {
 
 // --- ACTIONS ---
 function bill(r) {
-  window.open("https://bill.pitc.com.pk/gbill.aspx?refno=" + r, "_blank");
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = "https://bill.pitc.com.pk/gbill.aspx";
+  form.target = "_blank";
+
+  const input = document.createElement("input");
+  input.type = "hidden";
+  input.name = "refno";
+  input.value = r;
+
+  form.appendChild(input);
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
 }
 
 async function del(ref) {
