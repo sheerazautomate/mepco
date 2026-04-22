@@ -5,32 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Saleem Electricity Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet"/>
-
 <style>
-  :root {
-    --bg-color: #0d0f12;
-    --card-bg: #1a1d24;
-    --primary: #3b82f6;
-    --primary-hover: #2563eb;
-    --danger: #ef4444;
-    --danger-hover: #dc2626;
-    --success: #22c55e;
-    --warning: #f59e0b;
-    --text-main: #e8ecf4;
-    --text-muted: #94a3b8;
-    --border: #2d3340;
-  }
-
+  :root { --bg-color: #0d0f12; --card-bg: #1a1d24; --primary: #3b82f6; --primary-hover: #2563eb; --danger: #ef4444; --danger-hover: #dc2626; --success: #22c55e; --warning: #f59e0b; --text-main: #e8ecf4; --text-muted: #94a3b8; --border: #2d3340; }
   * { box-sizing: border-box; }
   body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; }
   h1, h2, h3 { margin: 0; font-weight: 600; }
   .mono { font-family: 'IBM Plex Mono', monospace; }
-
   header { padding: 16px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
   .toolbar { padding: 15px 20px; display: flex; gap: 10px; flex-wrap: wrap; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 15px; padding: 0 20px 20px; }
-
-  /* Cards */
   .card { background: var(--card-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
   .card:hover { border-color: var(--primary); }
   .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
@@ -38,21 +21,14 @@
   .meter-ref { font-size: 0.85rem; color: var(--text-muted); }
   .units { font-size: 1.5rem; font-weight: 600; color: var(--primary); margin: 2px 0; }
   .stats { font-size: 0.9rem; color: var(--text-muted); background: #111318; padding: 8px; border-radius: 6px; }
-
-  /* Status badge */
   .status-badge { font-size: 0.75rem; font-weight: 600; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
-  .status-active       { background: rgba(34,197,94,0.15);  color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
-  .status-disconnected { background: rgba(239,68,68,0.15);  color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
-  .status-defected     { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
-
-  /* Load tag */
+  .status-active { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+  .status-disconnected { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+  .status-defected { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
   .load-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 0.8rem; background: rgba(59,130,246,0.12); color: var(--primary); border: 1px solid rgba(59,130,246,0.25); border-radius: 6px; padding: 3px 8px; }
   .load-tag .load-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
   .load-since { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
-
-  /* Summary card */
   .summary-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin: 0 20px; }
-  .summary-card:hover { border-color: var(--primary); }
   .summary-title { font-size: 1rem; font-weight: 600; color: var(--text-muted); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.05em; }
   .summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
   .summary-stat { background: #111318; border-radius: 8px; padding: 12px; }
@@ -64,13 +40,10 @@
   .summary-row .sr-units { color: var(--primary); font-weight: 600; }
   .summary-row .sr-load { color: var(--text-muted); font-size: 0.78rem; }
   .section-gap { height: 15px; }
-
-  /* Inputs & Buttons */
   input, select { padding: 10px 14px; background: #111318; border: 1px solid var(--border); color: #fff; border-radius: 8px; font-family: inherit; outline: none; transition: border 0.2s; }
   input:focus, select:focus { border-color: var(--primary); }
   select option { background: #1a1d24; }
-  input[type="date"]::-webkit-calendar-picker-indicator,
-  input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+  input[type="date"]::-webkit-calendar-picker-indicator, input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
   .date-time-row { display: flex; gap: 10px; }
   .date-time-row input { flex: 1; }
   button { padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 500; transition: background 0.2s; }
@@ -83,23 +56,17 @@
   button.success:hover { background: #166534; }
   button:disabled { opacity: 0.5; cursor: not-allowed; }
   #searchBox { flex: 1; min-width: 200px; }
-
-  /* Auth */
   #lock { display: flex; height: 100vh; justify-content: center; align-items: center; background: var(--bg-color); }
   .auth-box { background: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border); text-align: center; width: 100%; max-width: 320px; }
   .auth-box input { width: 100%; margin: 15px 0; }
   .auth-box button { width: 100%; }
   #err { color: var(--danger); margin-top: 10px; font-size: 0.9rem; }
-
-  /* Modals */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; }
   .modal { background: var(--card-bg); padding: 24px; border-radius: 12px; width: 100%; max-width: 420px; border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
   .form-group { margin-bottom: 15px; text-align: left; }
   .form-group label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: var(--text-muted); }
   .form-group input, .form-group select { width: 100%; }
   .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-
-  /* Load list */
   .load-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; max-height: 220px; overflow-y: auto; }
   .load-item { display: flex; align-items: center; justify-content: space-between; background: #111318; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: border-color 0.2s; }
   .load-item:hover { border-color: var(--primary); }
@@ -109,8 +76,6 @@
   .load-item.selected .li-check { background: var(--primary); border-color: var(--primary); }
   .load-item.selected .li-check::after { content: "✓"; font-size: 11px; color: white; }
   .no-loads-msg { color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 16px; }
-
-  /* Toast / Loader */
   #loader { display: none; margin-left: 10px; font-size: 0.9rem; color: var(--text-muted); }
   #toast { position: fixed; bottom: 20px; right: 20px; background: #22c55e; color: white; padding: 12px 20px; border-radius: 8px; transform: translateY(100px); opacity: 0; transition: all 0.3s ease; z-index: 1100; }
   #toast.show { transform: translateY(0); opacity: 1; }
@@ -119,7 +84,6 @@
 </head>
 <body>
 
-<!-- AUTH -->
 <div id="lock">
   <div class="auth-box">
     <h2>Secure Login</h2>
@@ -129,54 +93,34 @@
   </div>
 </div>
 
-<!-- MAIN APP -->
 <div id="app" style="display:none;">
   <header>
     <h3>⚡ Electricity Dashboard</h3>
     <button onclick="logout()" class="secondary">Lock</button>
   </header>
-
   <div class="toolbar">
     <input id="searchBox" placeholder="Search by name or reference..." oninput="searchVal=this.value;render()"/>
     <button onclick="openModal('add')">+ Add Meter</button>
     <button onclick="openAddLoadModal()" class="success">+ Add Load</button>
     <button onclick="refresh()" class="secondary">↻ Refresh <span id="loader">Syncing...</span></button>
   </div>
-
   <div id="summarySection"></div>
   <div class="section-gap"></div>
   <div id="grid" class="grid"></div>
 </div>
 
-<!-- METER MODAL -->
 <div id="modalOverlay" class="modal-overlay">
   <div class="modal">
     <h2 id="modalTitle">Add Meter</h2>
     <div style="margin-top:15px;">
       <input type="hidden" id="meterMode" />
       <input type="hidden" id="originalRef" />
-      <div class="form-group">
-        <label>Meter Name</label>
-        <input type="text" id="mName" placeholder="e.g. Ground Floor" />
-      </div>
-      <div class="form-group">
-        <label>Reference No (14 digit)</label>
-        <input type="text" id="mRef" placeholder="00000000000000" class="mono" />
-      </div>
-      <div class="form-group">
-        <label>Last Month Reading</label>
-        <input type="number" id="mLast" placeholder="0" />
-      </div>
-      <div class="form-group">
-        <label>Current Reading</label>
-        <input type="number" id="mCurr" placeholder="0" />
-      </div>
-      <div class="form-group">
-        <label>Reading Date &amp; Time</label>
-        <div class="date-time-row">
-          <input type="date" id="mDate" />
-          <input type="time" id="mTime" />
-        </div>
+      <div class="form-group"><label>Meter Name</label><input type="text" id="mName" /></div>
+      <div class="form-group"><label>Reference No</label><input type="text" id="mRef" class="mono" /></div>
+      <div class="form-group"><label>Last Month Reading</label><input type="number" id="mLast" /></div>
+      <div class="form-group"><label>Current Reading</label><input type="number" id="mCurr" /></div>
+      <div class="form-group"><label>Reading Date & Time</label>
+        <div class="date-time-row"><input type="date" id="mDate" /><input type="time" id="mTime" /></div>
       </div>
       <div class="modal-actions">
         <button onclick="closeModal()" class="secondary">Cancel</button>
@@ -186,64 +130,43 @@
   </div>
 </div>
 
-<!-- ADD LOAD MODAL -->
 <div id="addLoadOverlay" class="modal-overlay">
   <div class="modal" style="max-width:360px;">
     <h2>Add New Load</h2>
     <div style="margin-top:15px;">
-      <div class="form-group">
-        <label>Load Name</label>
-        <input type="text" id="newLoadName" placeholder="e.g. AC Bedroom, Water Pump, Shop..." />
-      </div>
-      <div class="modal-actions">
-        <button onclick="closeAddLoadModal()" class="secondary">Cancel</button>
-        <button onclick="saveNewLoad()">Add Load</button>
-      </div>
+      <div class="form-group"><label>Load Name</label><input type="text" id="newLoadName" /></div>
+      <div class="modal-actions"><button onclick="closeAddLoadModal()" class="secondary">Cancel</button><button onclick="saveNewLoad()">Add Load</button></div>
     </div>
   </div>
 </div>
 
-<!-- CHANGE LOAD MODAL -->
 <div id="changeLoadOverlay" class="modal-overlay">
   <div class="modal">
     <h2 id="changeLoadTitle">Change Load</h2>
     <div style="margin-top:15px;">
       <input type="hidden" id="changeLoadRef" />
-      <p style="font-size:0.9rem; color:var(--text-muted); margin:0 0 10px;">Select which load is currently running on this meter:</p>
       <div id="loadList" class="load-list"></div>
-      <div class="form-group" style="margin-top:15px;">
-        <label>Load Active Since (Date &amp; Time)</label>
-        <div class="date-time-row">
-          <input type="date" id="loadDate" />
-          <input type="time" id="loadTime" />
-        </div>
+      <div class="form-group" style="margin-top:15px;"><label>Load Active Since</label>
+        <div class="date-time-row"><input type="date" id="loadDate" /><input type="time" id="loadTime" /></div>
       </div>
-      <div class="modal-actions">
-        <button onclick="closeChangeLoadModal()" class="secondary">Cancel</button>
-        <button onclick="saveLoadAssignment()">Save</button>
-      </div>
+      <div class="modal-actions"><button onclick="closeChangeLoadModal()" class="secondary">Cancel</button><button onclick="saveLoadAssignment()">Save</button></div>
     </div>
   </div>
 </div>
 
-<!-- STATUS MODAL -->
 <div id="statusOverlay" class="modal-overlay">
   <div class="modal" style="max-width:320px;">
     <h2>Meter Status</h2>
     <div style="margin-top:15px;">
       <input type="hidden" id="statusRef" />
-      <div class="form-group">
-        <label>Status</label>
+      <div class="form-group"><label>Status</label>
         <select id="statusSelect">
           <option value="Active">🟢 Active</option>
           <option value="Disconnected">🔴 Disconnected</option>
           <option value="Defected">🟡 Defected</option>
         </select>
       </div>
-      <div class="modal-actions">
-        <button onclick="closeStatusModal()" class="secondary">Cancel</button>
-        <button onclick="saveStatus()">Save Status</button>
-      </div>
+      <div class="modal-actions"><button onclick="closeStatusModal()" class="secondary">Cancel</button><button onclick="saveStatus()">Save Status</button></div>
     </div>
   </div>
 </div>
@@ -251,488 +174,121 @@
 <div id="toast">Success!</div>
 
 <script>
-// ═══════════════════════════════════════
-// CONFIG
-// ═══════════════════════════════════════
-const API          = "https://script.google.com/macros/s/AKfycbzkrYaOw4RwTXCbEYehxhtOWdcwE24W54l6qWCL5IK1yC4fry2mw_-GZnJYC3CUcl74/exec";
-const PASS         = "mepco2026";
-const CACHE_KEY    = "meters_cache";
-const CACHE_TIME   = 300000;
-const LOADS_KEY    = "loads_data";
-const META_KEY     = "meter_meta";
+const API = "YOUR_DEPLOYED_URL_HERE"; // <--- UPDATE THIS
+const PASS = "mepco2026";
 
-// ═══════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════
-let meters         = [];
-let searchVal      = "";
-let loads          = [];   // [{ id, name }]
-let meterMeta      = {};   // { [ref]: { status, loadId, loadSince } }
-let selectedLoadId = null;
+let meters = [], loads = [], meterMeta = {}, searchVal = "", selectedLoadId = null;
 
-// ═══════════════════════════════════════
-// DOM REFS
-// ═══════════════════════════════════════
 const el = {
-  lock:   document.getElementById('lock'),
-  app:    document.getElementById('app'),
-  pass:   document.getElementById('pass'),
-  err:    document.getElementById('err'),
-  grid:   document.getElementById('grid'),
-  loader: document.getElementById('loader'),
-  toast:  document.getElementById('toast'),
-  // Meter modal
-  modal:   document.getElementById('modalOverlay'),
-  mTitle:  document.getElementById('modalTitle'),
-  mMode:   document.getElementById('meterMode'),
-  oRef:    document.getElementById('originalRef'),
-  mName:   document.getElementById('mName'),
-  mRef:    document.getElementById('mRef'),
-  mLast:   document.getElementById('mLast'),
-  mCurr:   document.getElementById('mCurr'),
-  mDate:   document.getElementById('mDate'),
-  mTime:   document.getElementById('mTime'),
-  saveBtn: document.getElementById('saveBtn'),
-  // Add load modal
-  addLoadOverlay: document.getElementById('addLoadOverlay'),
-  newLoadName:    document.getElementById('newLoadName'),
-  // Change load modal
-  changeLoadOverlay: document.getElementById('changeLoadOverlay'),
-  changeLoadTitle:   document.getElementById('changeLoadTitle'),
-  changeLoadRef:     document.getElementById('changeLoadRef'),
-  loadList:          document.getElementById('loadList'),
-  loadDate:          document.getElementById('loadDate'),
-  loadTime:          document.getElementById('loadTime'),
-  // Status modal
-  statusOverlay: document.getElementById('statusOverlay'),
-  statusRef:     document.getElementById('statusRef'),
-  statusSelect:  document.getElementById('statusSelect'),
+  lock: document.getElementById('lock'), app: document.getElementById('app'), pass: document.getElementById('pass'), err: document.getElementById('err'),
+  grid: document.getElementById('grid'), loader: document.getElementById('loader'), toast: document.getElementById('toast'),
+  modal: document.getElementById('modalOverlay'), mTitle: document.getElementById('modalTitle'), mMode: document.getElementById('meterMode'),
+  oRef: document.getElementById('originalRef'), mName: document.getElementById('mName'), mRef: document.getElementById('mRef'),
+  mLast: document.getElementById('mLast'), mCurr: document.getElementById('mCurr'), mDate: document.getElementById('mDate'), mTime: document.getElementById('mTime'), saveBtn: document.getElementById('saveBtn'),
+  addLoadOverlay: document.getElementById('addLoadOverlay'), newLoadName: document.getElementById('newLoadName'),
+  changeLoadOverlay: document.getElementById('changeLoadOverlay'), changeLoadTitle: document.getElementById('changeLoadTitle'), changeLoadRef: document.getElementById('changeLoadRef'),
+  loadList: document.getElementById('loadList'), loadDate: document.getElementById('loadDate'), loadTime: document.getElementById('loadTime'),
+  statusOverlay: document.getElementById('statusOverlay'), statusRef: document.getElementById('statusRef'), statusSelect: document.getElementById('statusSelect')
 };
 
-// ═══════════════════════════════════════
-// AUTH
-// ═══════════════════════════════════════
-function login() {
-  if (el.pass.value === PASS) {
-    el.lock.style.display = "none";
-    el.app.style.display  = "block";
-    el.pass.value = "";
-    loadLocalData();
-    load();
-  } else {
-    el.err.innerText = "Incorrect password";
-  }
-}
+function login() { if (el.pass.value === PASS) { el.lock.style.display = "none"; el.app.style.display = "block"; load(); } else { el.err.innerText = "Incorrect password"; } }
+function logout() { el.app.style.display = "none"; el.lock.style.display = "flex"; }
 
-function logout() {
-  el.app.style.display  = "none";
-  el.lock.style.display = "flex";
-  meters = [];
-  el.grid.innerHTML = "";
-}
+function showToast(msg, isError = false) { el.toast.innerText = msg; el.toast.className = isError ? "error show" : "show"; setTimeout(() => el.toast.className = "", 3000); }
+function toggleLoad(isLoading) { el.loader.style.display = isLoading ? "inline-block" : "none"; }
+function todayISO() { return new Date().toISOString().split('T')[0]; }
+function nowTime() { return new Date().toTimeString().slice(0,5); }
+function formatDateTime(iso) { if(!iso) return "N/A"; return new Date(iso).toLocaleString('en-GB', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'}); }
+function statusClass(s) { return s==='Disconnected'?'status-disconnected':s==='Defected'?'status-defected':'status-active'; }
+function getMeta(ref) { return meterMeta[String(ref)] || { status: 'Active', loadId: null, loadSince: null }; }
+function getLoadName(id) { return loads.find(x => x.id === id)?.name || null; }
 
-// ═══════════════════════════════════════
-// LOCAL STORAGE (loads + meta)
-// ═══════════════════════════════════════
-function loadLocalData() {
-  try { loads     = JSON.parse(localStorage.getItem(LOADS_KEY)) || []; } catch(e) { loads = []; }
-  try { meterMeta = JSON.parse(localStorage.getItem(META_KEY))  || {}; } catch(e) { meterMeta = {}; }
-}
-function saveLoads()     { localStorage.setItem(LOADS_KEY, JSON.stringify(loads)); }
-function saveMeterMeta() { localStorage.setItem(META_KEY,  JSON.stringify(meterMeta)); }
+async function apiPost(action, data) { try { await fetch(API+"?action="+action, {method:"POST", body:JSON.stringify(data)}); return {success:true}; } catch(e) { return {success:true}; } }
 
-function getMeta(ref) {
-  return meterMeta[String(ref)] || { status: 'Active', loadId: null, loadSince: null };
-}
-function getLoadName(loadId) {
-  if (!loadId) return null;
-  const l = loads.find(x => x.id === loadId);
-  return l ? l.name : null;
-}
-
-// ═══════════════════════════════════════
-// UTILS
-// ═══════════════════════════════════════
-function showToast(msg, isError = false) {
-  el.toast.innerText = msg;
-  el.toast.className = isError ? "error show" : "show";
-  setTimeout(() => el.toast.className = "", 3000);
-}
-function toggleLoad(isLoading) {
-  el.loader.style.display = isLoading ? "inline-block" : "none";
-}
-function todayISO() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-function nowTime() {
-  const d = new Date();
-  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-}
-function formatDateTime(isoStr) {
-  if (!isoStr) return "N/A";
-  if (!/^\d{4}-\d{2}-\d{2}/.test(isoStr)) return isoStr;
-  const d = new Date(isoStr.replace('T', ' ').replace('Z', ''));
-  if (isNaN(d)) return isoStr;
-  return d.toLocaleString('en-GB', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-}
-function formatDate(dateISO, timeISO) {
-  return `${dateISO}T${timeISO || '00:00'}`;
-}
-function dateToISO(stored) {
-  if (!stored) return todayISO();
-  if (/^\d{4}-\d{2}-\d{2}T/.test(stored)) return stored.split('T')[0];
-  if (/^\d{4}-\d{2}-\d{2}$/.test(stored)) return stored;
-  const p = stored.split('/');
-  if (p.length >= 3) return `${p[2].substring(0,4)}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
-  return todayISO();
-}
-function timeFromStored(stored) {
-  if (!stored) return nowTime();
-  if (/^\d{4}-\d{2}-\d{2}T(\d{2}:\d{2})/.test(stored)) return stored.split('T')[1].substring(0,5);
-  return nowTime();
-}
-function statusClass(s) {
-  if (s === 'Disconnected') return 'status-disconnected';
-  if (s === 'Defected')     return 'status-defected';
-  return 'status-active';
-}
-
-// ═══════════════════════════════════════
-// CACHE
-// ═══════════════════════════════════════
-function saveCache(d) { localStorage.setItem(CACHE_KEY, JSON.stringify({t: Date.now(), d})); }
-function getCache() {
-  let c = localStorage.getItem(CACHE_KEY);
-  if (!c) return null;
-  c = JSON.parse(c);
-  if (Date.now() - c.t > CACHE_TIME) return null;
-  return c.d;
-}
-
-// ═══════════════════════════════════════
-// API
-// ═══════════════════════════════════════
-async function apiGet() {
-  const r = await fetch(API + "?action=get");
-  return r.json();
-}
-async function apiPost(action, data) {
-  try {
-    const r = await fetch(API + "?action=" + action, { method: "POST", body: JSON.stringify(data) });
-    return await r.json();
-  } catch(e) {
-    console.warn("GAS POST CORS handled gracefully", e);
-    return { success: true };
-  }
-}
-
-// ═══════════════════════════════════════
-// LOAD / REFRESH
-// ═══════════════════════════════════════
 async function load() {
-  const cache = getCache();
-  if (cache) { meters = mapData(cache); render(); }
   toggleLoad(true);
   try {
-    const data = await apiGet();
-    saveCache(data);
-    meters = mapData(data);
+    const r = await fetch(API + "?action=get");
+    const res = await r.json();
+    meters = res.meters.map(r => ({ ref: r["REFERENCE NO"], name: r["Meter Name"], last: +r["Last Month MEPCO Reading"]||0, curr: +r["Manual Reading"]||0, date: r["Manual Reading Date"] }));
+    loads = res.loads;
+    meterMeta = res.meta;
     render();
-  } catch(e) {
-    if (!cache) el.grid.innerHTML = `<div style="color:var(--danger)">Failed to connect to API</div>`;
-    showToast("Failed to fetch fresh data", true);
-  }
+  } catch(e) { showToast("Sync failed", true); }
   toggleLoad(false);
 }
-function refresh() { localStorage.removeItem(CACHE_KEY); load(); }
-function mapData(d) {
-  return d.map(r => ({
-    ref:  r["REFERENCE NO"],
-    name: r["Meter Name"],
-    last: +r["Last Month MEPCO Reading"] || 0,
-    curr: +r["Manual Reading"]           || 0,
-    date: r["Manual Reading Date"]
-  }));
-}
+function refresh() { load(); }
 
-// ═══════════════════════════════════════
-// RENDER
-// ═══════════════════════════════════════
 function render() {
-  renderSummary();
-  renderCards();
-}
-
-function renderSummary() {
-  const total        = meters.length;
-  const totalUnits   = meters.reduce((s, m) => s + (m.curr - m.last), 0);
-  const active       = meters.filter(m => getMeta(m.ref).status === 'Active').length;
-  const disconnected = meters.filter(m => getMeta(m.ref).status === 'Disconnected').length;
-  const defected     = meters.filter(m => getMeta(m.ref).status === 'Defected').length;
-  const withLoad     = meters.filter(m => getMeta(m.ref).loadId).length;
-
-  const rows = meters.map(m => {
-    const meta     = getMeta(m.ref);
-    const loadName = getLoadName(meta.loadId);
-    const units    = m.curr - m.last;
-    return `
-      <div class="summary-row">
-        <span class="sr-name">${m.name}</span>
-        <span class="sr-load">${loadName ? '🔌 ' + loadName : '—'}</span>
-        <span class="sr-units">${units} u</span>
-        <span class="status-badge ${statusClass(meta.status)}" style="font-size:0.7rem;">${meta.status}</span>
-      </div>`;
-  }).join('');
-
+  const totalUnits = meters.reduce((s, m) => s + (m.curr - m.last), 0);
+  const active = meters.filter(m => getMeta(m.ref).status === 'Active').length;
   document.getElementById('summarySection').innerHTML = `
     <div class="summary-card">
-      <div class="summary-title">📊 System Summary</div>
+      <div class="summary-title">📊 Cloud Dashboard Summary</div>
       <div class="summary-grid">
-        <div class="summary-stat"><div class="s-val" style="color:var(--primary)">${total}</div><div class="s-lbl">Total Meters</div></div>
-        <div class="summary-stat"><div class="s-val" style="color:var(--primary)">${totalUnits}</div><div class="s-lbl">Total Units</div></div>
-        <div class="summary-stat"><div class="s-val" style="color:var(--success)">${active}</div><div class="s-lbl">Active</div></div>
-        <div class="summary-stat"><div class="s-val" style="color:var(--danger)">${disconnected}</div><div class="s-lbl">Disconnected</div></div>
-        <div class="summary-stat"><div class="s-val" style="color:var(--warning)">${defected}</div><div class="s-lbl">Defected</div></div>
-        <div class="summary-stat"><div class="s-val" style="color:#a78bfa">${loads.length}</div><div class="s-lbl">Total Loads</div></div>
-        <div class="summary-stat"><div class="s-val" style="color:#a78bfa">${withLoad}</div><div class="s-lbl">Loads Assigned</div></div>
+        <div class="summary-stat"><div class="s-val">${meters.length}</div><div class="s-lbl">Meters</div></div>
+        <div class="summary-stat"><div class="s-val">${totalUnits}</div><div class="s-lbl">Units</div></div>
+        <div class="summary-stat"><div class="s-val">${active}</div><div class="s-lbl">Active</div></div>
+        <div class="summary-stat"><div class="s-val">${loads.length}</div><div class="s-lbl">Loads</div></div>
       </div>
-      ${total > 0 ? `<div class="summary-meters">${rows}</div>` : ''}
     </div>`;
-}
 
-function renderCards() {
-  const filtered = meters.filter(m =>
-    m.name.toLowerCase().includes(searchVal.toLowerCase()) ||
-    String(m.ref).includes(searchVal)
-  );
-
-  if (filtered.length === 0) {
-    el.grid.innerHTML = `<div style="color:var(--text-muted)">No meters found.</div>`;
-    return;
-  }
-
+  const filtered = meters.filter(m => m.name.toLowerCase().includes(searchVal.toLowerCase()) || String(m.ref).includes(searchVal));
   el.grid.innerHTML = filtered.map(m => {
-    const u        = m.curr - m.last;
-    const meta     = getMeta(m.ref);
+    const meta = getMeta(m.ref);
     const loadName = getLoadName(meta.loadId);
-    const sClass   = statusClass(meta.status);
-
-    const loadSection = loadName
-      ? `<div>
-           <div class="load-tag"><span class="load-dot"></span>${loadName}</div>
-           <div class="load-since">Since: ${formatDateTime(meta.loadSince)}</div>
-         </div>`
-      : `<div style="font-size:0.8rem;color:var(--text-muted);">No load assigned</div>`;
-
     return `
       <div class="card">
         <div class="card-header">
-          <div>
-            <div class="meter-name">${m.name}</div>
-            <div class="meter-ref mono">Ref: ${m.ref}</div>
-          </div>
-          <span class="status-badge ${sClass}" style="cursor:pointer;" onclick="openStatusModal('${m.ref}')" title="Click to change status">${meta.status}</span>
+          <div><div class="meter-name">${m.name}</div><div class="meter-ref mono">Ref: ${m.ref}</div></div>
+          <span class="status-badge ${statusClass(meta.status)}" onclick="openStatusModal('${m.ref}')">${meta.status}</span>
         </div>
-        <div class="units">${u} Units</div>
-        <div class="stats">
-          Last: <b>${m.last}</b> &nbsp;|&nbsp; Now: <b>${m.curr}</b>
-          <div style="font-size:0.8rem;margin-top:4px;">Updated: ${m.date ? formatDateTime(m.date) : "N/A"}</div>
-        </div>
-        ${loadSection}
-        <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;">
-          <button class="secondary" style="flex:1" onclick="openModal('edit', this.dataset.ref)" data-ref="${m.ref}">Edit</button>
-          <button class="danger" onclick="del(this.dataset.ref)" data-ref="${m.ref}">Delete</button>
-          <button style="flex:1" onclick="bill(this.dataset.ref)" data-ref="${m.ref}">View Bill</button>
-        </div>
-        <button class="secondary" style="width:100%;margin-top:2px;" onclick="openChangeLoadModal('${m.ref}')">🔌 Change Load</button>
+        <div class="units">${m.curr - m.last} Units</div>
+        <div class="stats">Last: ${m.last} | Now: ${m.curr}<br>Updated: ${formatDateTime(m.date)}</div>
+        ${loadName ? `<div class="load-tag"><span class="load-dot"></span>${loadName}</div><div class="load-since">Since: ${formatDateTime(meta.loadSince)}</div>` : '<div style="font-size:0.8rem;color:var(--text-muted);">No load</div>'}
+        <div style="display:flex;gap:8px;margin-top:6px;"><button class="secondary" style="flex:1" onclick="openModal('edit','${m.ref}')">Edit</button><button class="danger" onclick="del('${m.ref}')">Del</button></div>
+        <button class="secondary" style="width:100%" onclick="openChangeLoadModal('${m.ref}')">🔌 Change Load</button>
       </div>`;
   }).join("");
 }
 
-// ═══════════════════════════════════════
-// BILL
-// ═══════════════════════════════════════
-function bill(r) {
-  const form = document.createElement("form");
-  form.method = "POST";
-  form.action = "https://bill.pitc.com.pk/gbill.aspx?refno=" + r;
-  form.target = "_blank";
-  document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
-}
-
-// ═══════════════════════════════════════
-// DELETE METER
-// ═══════════════════════════════════════
-async function del(ref) {
-  if (!confirm("Are you sure you want to delete this meter?")) return;
-  toggleLoad(true);
-  await apiPost("delete", { ref });
-  showToast("Meter Deleted");
-  refresh();
-}
-
-// ═══════════════════════════════════════
-// METER MODAL
-// ═══════════════════════════════════════
-function openModal(mode, ref = null) {
-  el.mMode.value = mode;
-  if (mode === 'add') {
-    el.mTitle.innerText = "Add New Meter";
-    el.oRef.value       = "";
-    el.mName.value      = "";
-    el.mRef.value       = "";
-    el.mRef.disabled    = false;
-    el.mLast.value      = "";
-    el.mCurr.value      = "";
-    el.mDate.value      = todayISO();
-    el.mTime.value      = nowTime();
-  } else {
-    const m = meters.find(x => String(x.ref) === String(ref));
-    if (!m) { showToast("Meter not found", true); return; }
-    el.mTitle.innerText = "Edit Meter";
-    el.oRef.value       = m.ref;
-    el.mName.value      = m.name;
-    el.mRef.value       = m.ref;
-    el.mRef.disabled    = true;
-    el.mLast.value      = m.last;
-    el.mCurr.value      = m.curr;
-    el.mDate.value      = dateToISO(m.date);
-    el.mTime.value      = timeFromStored(m.date);
-  }
-  el.modal.style.display = "flex";
-}
-function closeModal() { el.modal.style.display = "none"; }
-
 async function saveMeter() {
-  const mode        = el.mMode.value;
-  const name        = el.mName.value.trim();
-  const ref         = mode === 'edit' ? el.oRef.value : el.mRef.value.trim();
-  const last        = +el.mLast.value || 0;
-  const curr        = +el.mCurr.value || 0;
-  const readingDate = formatDate(el.mDate.value, el.mTime.value);
-
-  if (!name || !ref) { alert("Name and Reference No are required."); return; }
-
-  el.saveBtn.disabled  = true;
-  el.saveBtn.innerText = "Saving...";
-
-  const payload = {
-    "REFERENCE NO":             ref,
-    "Meter Name":               name,
-    "Last Month MEPCO Reading": last,
-    "Manual Reading":           curr,
-    "Manual Reading Date":      readingDate,
-    "Units Consumed":           curr - last
-  };
-
-  if (mode === 'edit') {
-    payload.ref = ref;
-    await apiPost("update", payload);
-    showToast("Meter Updated!");
-  } else {
-    await apiPost("create", payload);
-    showToast("Meter Added!");
-  }
-
-  el.saveBtn.disabled  = false;
-  el.saveBtn.innerText = "Save Meter";
-  closeModal();
-  refresh();
+  const payload = { "REFERENCE NO": el.mRef.value, "Meter Name": el.mName.value, "Last Month MEPCO Reading": +el.mLast.value, "Manual Reading": +el.mCurr.value, "Manual Reading Date": el.mDate.value+"T"+el.mTime.value, "Units Consumed": +el.mCurr.value - +el.mLast.value, ref: el.oRef.value };
+  await apiPost(el.mMode.value, payload);
+  closeModal(); load();
 }
 
-// ═══════════════════════════════════════
-// ADD LOAD MODAL
-// ═══════════════════════════════════════
-function openAddLoadModal() {
-  el.newLoadName.value = "";
-  el.addLoadOverlay.style.display = "flex";
-  setTimeout(() => el.newLoadName.focus(), 50);
-}
-function closeAddLoadModal() { el.addLoadOverlay.style.display = "none"; }
-function saveNewLoad() {
-  const name = el.newLoadName.value.trim();
-  if (!name) { alert("Load name is required."); return; }
-  loads.push({ id: "load_" + Date.now(), name });
-  saveLoads();
-  closeAddLoadModal();
-  showToast(`Load "${name}" added!`);
-  render();
+async function saveNewLoad() {
+  const id = "load_" + Date.now();
+  await apiPost("saveLoad", { id, name: el.newLoadName.value });
+  closeAddLoadModal(); load();
 }
 
-// ═══════════════════════════════════════
-// CHANGE LOAD MODAL
-// ═══════════════════════════════════════
-function openChangeLoadModal(ref) {
-  const m = meters.find(x => String(x.ref) === String(ref));
-  if (!m) return;
+async function saveLoadAssignment() {
+  const ref = el.changeLoadRef.value;
+  const status = getMeta(ref).status;
+  await apiPost("updateMeta", { ref, status, loadId: selectedLoadId, loadSince: el.loadDate.value+"T"+el.loadTime.value });
+  closeChangeLoadModal(); load();
+}
+
+async function saveStatus() {
+  const ref = el.statusRef.value;
   const meta = getMeta(ref);
-
-  el.changeLoadRef.value       = ref;
-  el.changeLoadTitle.innerText = `Change Load — ${m.name}`;
-  selectedLoadId               = meta.loadId || null;
-  el.loadDate.value            = dateToISO(meta.loadSince);
-  el.loadTime.value            = timeFromStored(meta.loadSince);
-
-  renderLoadList();
-  el.changeLoadOverlay.style.display = "flex";
-}
-function renderLoadList() {
-  if (loads.length === 0) {
-    el.loadList.innerHTML = `<div class="no-loads-msg">No loads added yet.<br>Use "+ Add Load" in the toolbar first.</div>`;
-    return;
-  }
-  el.loadList.innerHTML = [
-    `<div class="load-item ${!selectedLoadId ? 'selected' : ''}" onclick="selectLoad(null)">
-       <span class="li-name" style="color:var(--text-muted);">— No Load —</span>
-       <span class="li-check"></span>
-     </div>`,
-    ...loads.map(l => `
-      <div class="load-item ${selectedLoadId === l.id ? 'selected' : ''}" onclick="selectLoad('${l.id}')">
-        <span class="li-name">${l.name}</span>
-        <span class="li-check"></span>
-      </div>`)
-  ].join('');
-}
-function selectLoad(id) {
-  selectedLoadId = id;
-  renderLoadList();
-}
-function closeChangeLoadModal() { el.changeLoadOverlay.style.display = "none"; }
-function saveLoadAssignment() {
-  const ref   = el.changeLoadRef.value;
-  const since = selectedLoadId ? formatDate(el.loadDate.value, el.loadTime.value) : null;
-  if (!meterMeta[String(ref)]) meterMeta[String(ref)] = { status: 'Active' };
-  meterMeta[String(ref)].loadId    = selectedLoadId;
-  meterMeta[String(ref)].loadSince = since;
-  saveMeterMeta();
-  showToast(selectedLoadId ? `Load "${getLoadName(selectedLoadId)}" assigned!` : "Load removed.");
-  closeChangeLoadModal();
-  render();
+  await apiPost("updateMeta", { ref, status: el.statusSelect.value, loadId: meta.loadId, loadSince: meta.loadSince });
+  closeStatusModal(); load();
 }
 
-// ═══════════════════════════════════════
-// STATUS MODAL
-// ═══════════════════════════════════════
-function openStatusModal(ref) {
-  const meta = getMeta(ref);
-  el.statusRef.value    = ref;
-  el.statusSelect.value = meta.status || 'Active';
-  el.statusOverlay.style.display = "flex";
-}
-function closeStatusModal() { el.statusOverlay.style.display = "none"; }
-function saveStatus() {
-  const ref    = el.statusRef.value;
-  const status = el.statusSelect.value;
-  if (!meterMeta[String(ref)]) meterMeta[String(ref)] = {};
-  meterMeta[String(ref)].status = status;
-  saveMeterMeta();
-  showToast(`Status set to ${status}`);
-  closeStatusModal();
-  render();
-}
+async function del(ref) { if(confirm("Delete?")) { await apiPost("delete", {ref}); load(); } }
+
+function openModal(mode, ref) { el.mMode.value = mode; if(mode==='add'){ el.mRef.value=""; el.mName.value=""; el.mLast.value=""; el.mCurr.value=""; el.mDate.value=todayISO(); el.mTime.value=nowTime(); el.mRef.disabled=false; } else { const m = meters.find(x=>x.ref==ref); el.oRef.value=m.ref; el.mRef.value=m.ref; el.mName.value=m.name; el.mLast.value=m.last; el.mCurr.value=m.curr; el.mDate.value=(m.date||"").split('T')[0]||todayISO(); el.mTime.value=(m.date||"").split('T')[1]?.slice(0,5)||nowTime(); el.mRef.disabled=true; } el.modal.style.display="flex"; }
+function closeModal() { el.modal.style.display="none"; }
+function openAddLoadModal() { el.newLoadName.value=""; el.addLoadOverlay.style.display="flex"; }
+function closeAddLoadModal() { el.addLoadOverlay.style.display="none"; }
+function openChangeLoadModal(ref) { const meta = getMeta(ref); el.changeLoadRef.value=ref; selectedLoadId=meta.loadId; el.loadDate.value=(meta.loadSince||"").split('T')[0]||todayISO(); el.loadTime.value=(meta.loadSince||"").split('T')[1]?.slice(0,5)||nowTime(); renderLoadList(); el.changeLoadOverlay.style.display="flex"; }
+function renderLoadList() { el.loadList.innerHTML = `<div class="load-item ${!selectedLoadId?'selected':''}" onclick="selectedLoadId=null;renderLoadList()">No Load</div>` + loads.map(l => `<div class="load-item ${selectedLoadId===l.id?'selected':''}" onclick="selectedLoadId='${l.id}';renderLoadList()">${l.name}</div>`).join(''); }
+function closeChangeLoadModal() { el.changeLoadOverlay.style.display="none"; }
+function openStatusModal(ref) { el.statusRef.value=ref; el.statusSelect.value=getMeta(ref).status; el.statusOverlay.style.display="flex"; }
+function closeStatusModal() { el.statusOverlay.style.display="none"; }
 </script>
 </body>
 </html>
