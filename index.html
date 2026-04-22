@@ -39,7 +39,10 @@
   
   input, select { padding: 10px 14px; background: #111318; border: 1px solid var(--border); color: #fff; border-radius: 8px; font-family: inherit; outline: none; transition: border 0.2s; }
   input:focus, select:focus { border-color: var(--primary); }
-  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+  .date-time-row { display: flex; gap: 10px; }
+  .date-time-row input { flex: 1; }
   button { padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 500; transition: background 0.2s; }
   button:hover { background: var(--primary-hover); }
   button.danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
@@ -119,8 +122,11 @@
         <input type="number" id="mCurr" placeholder="0" />
       </div>
       <div class="form-group">
-        <label>Reading Date</label>
-        <input type="date" id="mDate" />
+        <label>Reading Date &amp; Time</label>
+        <div class="date-time-row">
+          <input type="date" id="mDate" />
+          <input type="time" id="mTime" />
+        </div>
       </div>
 
       <div class="modal-actions">
@@ -162,6 +168,7 @@ const el = {
   mLast: document.getElementById('mLast'),
   mCurr: document.getElementById('mCurr'),
   mDate: document.getElementById('mDate'),
+  mTime: document.getElementById('mTime'),
   saveBtn: document.getElementById('saveBtn')
 };
 
@@ -196,26 +203,55 @@ function toggleLoad(isLoading) {
 }
 
 function todayISO() {
-  return new Date().toISOString().split('T')[0];
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
 }
 
-function formatDate(isoStr) {
-  if (!isoStr) return new Date().toLocaleDateString('en-GB');
-  const d = new Date(isoStr);
-  if (isNaN(d)) return isoStr; // already formatted, return as-is
-  return d.toLocaleDateString('en-GB');
+function nowTime() {
+  const d = new Date();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  return `${hh}:${min}`;
 }
 
-function dateToISO(dateStr) {
-  if (!dateStr) return todayISO();
-  // Already ISO
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
-  // Try to parse DD/MM/YYYY
-  const parts = dateStr.split('/');
-  if (parts.length === 3) return `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
-  // Fallback
-  const d = new Date(dateStr);
-  return isNaN(d) ? todayISO() : d.toISOString().split('T')[0];
+function formatDateTime(isoStr) {
+  if (!isoStr) return new Date().toLocaleString('en-GB');
+  // Already a readable string (old data like "20/04/2026")
+  if (!/^\d{4}-\d{2}-\d{2}/.test(isoStr)) return isoStr;
+  // Parse as local time by replacing T separator
+  const d = new Date(isoStr.replace('T', ' ').replace('Z', ''));
+  if (isNaN(d)) return isoStr;
+  return d.toLocaleString('en-GB', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+function formatDate(dateISO, timeISO) {
+  // Combine date + time into a local datetime string stored as ISO-like but no Z (no UTC shift)
+  const dt = `${dateISO}T${timeISO || '00:00'}`;
+  return dt; // stored as "2026-04-20T14:30"
+}
+
+function dateToISO(stored) {
+  if (!stored) return todayISO();
+  // ISO datetime like "2026-04-20T14:30"
+  if (/^\d{4}-\d{2}-\d{2}T/.test(stored)) return stored.split('T')[0];
+  // Old ISO date "2026-04-20"
+  if (/^\d{4}-\d{2}-\d{2}$/.test(stored)) return stored;
+  // Old format DD/MM/YYYY
+  const parts = stored.split('/');
+  if (parts.length >= 3) return `${parts[2].substring(0,4)}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
+  return todayISO();
+}
+
+function timeFromStored(stored) {
+  if (!stored) return nowTime();
+  // ISO datetime like "2026-04-20T14:30"
+  if (/^\d{4}-\d{2}-\d{2}T(\d{2}:\d{2})/.test(stored)) {
+    return stored.split('T')[1].substring(0, 5);
+  }
+  return nowTime();
 }
 
 // --- CACHE ---
@@ -307,7 +343,7 @@ function render() {
         <div class="units">${u} Units</div>
         <div class="stats">
           Last: <b>${m.last}</b> &nbsp;|&nbsp; Now: <b>${m.curr}</b>
-          <div style="font-size:0.8rem; margin-top:4px;">Updated: ${m.date || "N/A"}</div>
+          <div style="font-size:0.8rem; margin-top:4px;">Updated: ${m.date ? formatDateTime(m.date) : "N/A"}</div>
         </div>
         <div style="display:flex; gap:8px; margin-top:10px;">
           <button class="secondary" style="flex:1" onclick="openModal('edit', this.dataset.ref)" data-ref="${m.ref}">Edit</button>
@@ -351,6 +387,7 @@ function openModal(mode, ref = null) {
     el.mLast.value = "";
     el.mCurr.value = "";
     el.mDate.value = todayISO();
+    el.mTime.value = nowTime();
   } else {
     let m = meters.find(x => String(x.ref) === String(ref));
     if (!m) {
@@ -365,6 +402,7 @@ function openModal(mode, ref = null) {
     el.mLast.value = m.last;
     el.mCurr.value = m.curr;
     el.mDate.value = dateToISO(m.date);
+    el.mTime.value = timeFromStored(m.date);
   }
   el.modal.style.display = "flex";
 }
@@ -379,7 +417,7 @@ async function saveMeter() {
   let ref = mode === 'edit' ? el.oRef.value : el.mRef.value.trim();
   let last = +el.mLast.value || 0;
   let curr = +el.mCurr.value || 0;
-  let readingDate = formatDate(el.mDate.value);
+  let readingDate = formatDate(el.mDate.value, el.mTime.value);
 
   if (!name || !ref) {
     alert("Name and Reference No are required.");
