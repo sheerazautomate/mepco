@@ -213,7 +213,6 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
 </head>
 <body>
 
-<!-- LOCK -->
 <div id="lock">
   <div class="auth-wrap">
     <div class="auth-logo">
@@ -230,13 +229,11 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   </div>
 </div>
 
-<!-- LOADING -->
 <div id="loadingScreen">
   <div class="spinner"></div>
   <div class="loading-text">Syncing data…</div>
 </div>
 
-<!-- APP -->
 <div id="app">
   <header class="app-header">
     <div class="header-brand">
@@ -252,7 +249,6 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
     </div>
   </header>
   <div class="app-scroll">
-    <!-- SUMMARY -->
     <div class="summary-section" style="padding-top:16px;">
       <div class="summary-banner" id="summaryBanner">
         <div class="summary-top">
@@ -268,7 +264,6 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
       </div>
     </div>
 
-    <!-- TOOLBAR -->
     <div class="toolbar">
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
@@ -280,7 +275,6 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
       </div>
     </div>
 
-    <!-- FILTER -->
     <div class="filter-bar" id="filterBar">
       <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">All</button>
       <button class="filter-chip" data-filter="Active" onclick="setFilter('Active')">🟢 Active</button>
@@ -288,12 +282,10 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
       <button class="filter-chip" data-filter="Defected" onclick="setFilter('Defected')">🟡 Defected</button>
     </div>
 
-    <!-- GRID -->
     <div class="grid" id="grid"></div>
   </div>
 </div>
 
-<!-- MODAL: Meter -->
 <div class="overlay" id="meterOverlay" onclick="overlayClick(event,'meterOverlay')">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -319,7 +311,6 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   </div>
 </div>
 
-<!-- MODAL: Add Load -->
 <div class="overlay" id="addLoadOverlay" onclick="overlayClick(event,'addLoadOverlay')">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -332,7 +323,6 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   </div>
 </div>
 
-<!-- MODAL: Change Load -->
 <div class="overlay" id="changeLoadOverlay" onclick="overlayClick(event,'changeLoadOverlay')">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -354,7 +344,6 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   </div>
 </div>
 
-<!-- MODAL: Status -->
 <div class="overlay" id="statusOverlay" onclick="overlayClick(event,'statusOverlay')">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -374,7 +363,6 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
   </div>
 </div>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
 <script>
@@ -382,7 +370,7 @@ const API = "https://script.google.com/macros/s/AKfycbzkrYaOw4RwTXCbEYehxhtOWdcw
 const PASS = "mepco2026";
 
 let meters = [], loads = [], meterMeta = {};
-let searchVal = "", filterStatus = "all", selectedLoadId = null;
+let searchVal = "", filterStatus = "all", selectedLoadIds = [];
 
 // ─── UTILS ───
 const $ = id => document.getElementById(id);
@@ -393,8 +381,17 @@ function formatDT(iso){
   try{ return new Date(iso).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
   catch{ return "N/A"; }
 }
-function getMeta(ref){ return meterMeta[String(ref)] || {status:'Active',loadId:null,loadSince:null}; }
-function getLoadName(id){ return loads.find(x=>x.id===id)?.name || null; }
+function getMeta(ref){ 
+  let meta = meterMeta[String(ref)] || {status:'Active',loadId:null,loadSince:null};
+  if(!meta.loadIds){
+    meta.loadIds = meta.loadId ? [meta.loadId] : [];
+  }
+  return meta;
+}
+function getLoadNames(ids){ 
+  if(!ids || !Array.isArray(ids) || ids.length === 0) return null;
+  return ids.map(id => loads.find(x=>x.id===id)?.name).filter(Boolean).join(', ');
+}
 function badgeClass(s){ return s==='Disconnected'?'badge-disconnected':s==='Defected'?'badge-defected':'badge-active'; }
 function cardStatusClass(s){ return s==='Disconnected'?'status-disconnected':s==='Defected'?'status-defected':'status-active'; }
 
@@ -507,7 +504,8 @@ function renderGrid(){
   $('grid').innerHTML = filtered.map(m=>{
     const meta = getMeta(m.ref);
     const units = m.curr - m.last;
-    const loadName = getLoadName(meta.loadId);
+    const loadIds = meta.loadIds || (meta.loadId ? [meta.loadId] : []);
+    const loadNamesStr = getLoadNames(loadIds);
     const statusLabel = meta.status || 'Active';
     return `
     <div class="card ${cardStatusClass(statusLabel)}">
@@ -534,7 +532,7 @@ function renderGrid(){
       <div class="card-meta">
         <span class="meta-icon">🔌</span>
         <div class="meta-text">
-          ${loadName ? `<div style="font-weight:600;color:var(--amber)">${escHtml(loadName)}</div><div class="meta-since">Since ${formatDT(meta.loadSince)}</div>` : '<span class="no-load-tag">No load assigned</span>'}
+          ${loadNamesStr ? `<div style="font-weight:600;color:var(--amber)">${escHtml(loadNamesStr)}</div><div class="meta-since">Since ${formatDT(meta.loadSince)}</div>` : '<span class="no-load-tag">No load assigned</span>'}
         </div>
       </div>
       <div class="card-actions">
@@ -622,22 +620,46 @@ function openChangeLoadModal(ref){
   const meta = getMeta(ref);
   $('changeLoadRef').value = ref;
   $('changeLoadTitle').innerText = "Assign Load — "+meters.find(m=>m.ref==ref)?.name;
-  selectedLoadId = meta.loadId || null;
+  selectedLoadIds = meta.loadIds ? [...meta.loadIds] : (meta.loadId ? [meta.loadId] : []);
   $('loadDate').value = (meta.loadSince||'').split('T')[0] || todayISO();
   $('loadTime').value = (meta.loadSince||'').split('T')[1]?.slice(0,5) || nowTime();
   renderLoadList();
   openOverlay('changeLoadOverlay');
 }
+function toggleSelectLoad(id){
+  const idx = selectedLoadIds.indexOf(id);
+  if(idx > -1){
+    selectedLoadIds.splice(idx, 1);
+  } else {
+    selectedLoadIds.push(id);
+  }
+  renderLoadList();
+}
 function renderLoadList(){
-  const items = [
-    {id:null, name:'No Load'},
-    ...loads
-  ];
-  $('loadList').innerHTML = items.map(l=>`
-    <div class="load-opt ${selectedLoadId===l.id?'sel':''}" onclick="selectedLoadId=${l.id?`'${l.id}'`:null};renderLoadList()">
+  let html = `
+    <div class="load-opt ${selectedLoadIds.length===0?'sel':''}" onclick="selectedLoadIds=[];renderLoadList()">
       <div class="lo-check"><span class="lo-check-inner">✓</span></div>
-      <span class="lo-name ${!l.id?'lo-none':''}">${escHtml(l.name)}</span>
+      <span class="lo-name lo-none">No Load</span>
+    </div>
+  `;
+  html += loads.map(l=>`
+    <div class="load-opt ${selectedLoadIds.includes(l.id)?'sel':''}" onclick="toggleSelectLoad('${l.id}')">
+      <div style="display:flex;align-items:center;gap:12px;flex:1;">
+        <div class="lo-check"><span class="lo-check-inner">✓</span></div>
+        <span class="lo-name">${escHtml(l.name)}</span>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="delLoad(event,'${l.id}','${escHtml(l.name)}')" style="padding:6px 10px;font-size:0.75rem;">🗑</button>
     </div>`).join('');
+  $('loadList').innerHTML = html;
+}
+async function delLoad(e, id, name){
+  e.stopPropagation();
+  if(!confirm(`Delete load "${name}"? This will unassign it from all meters.`)) return;
+  closeChangeLoadModal();
+  setLoading(true);
+  await apiPost("deleteLoad", {id});
+  await load();
+  toast("Load deleted", "ok");
 }
 function closeChangeLoadModal(){ closeOverlay('changeLoadOverlay'); }
 async function saveLoadAssignment(){
@@ -645,7 +667,13 @@ async function saveLoadAssignment(){
   const meta = getMeta(ref);
   closeChangeLoadModal();
   setLoading(true);
-  await apiPost("updateMeta", {ref, status: meta.status||'Active', loadId: selectedLoadId, loadSince: $('loadDate').value+"T"+$('loadTime').value});
+  await apiPost("updateMeta", {
+    ref, 
+    status: meta.status||'Active', 
+    loadId: selectedLoadIds.length > 0 ? selectedLoadIds[0] : null, 
+    loadIds: selectedLoadIds, 
+    loadSince: $('loadDate').value+"T"+$('loadTime').value
+  });
   await load();
   toast("Load assigned ✓", "ok");
 }
@@ -662,7 +690,7 @@ async function saveStatus(){
   const meta = getMeta(ref);
   closeStatusModal();
   setLoading(true);
-  await apiPost("updateMeta", {ref, status: $('statusSelect').value, loadId: meta.loadId, loadSince: meta.loadSince});
+  await apiPost("updateMeta", {ref, status: $('statusSelect').value, loadId: meta.loadId, loadIds: meta.loadIds, loadSince: meta.loadSince});
   await load();
   toast("Status updated ✓", "ok");
 }
