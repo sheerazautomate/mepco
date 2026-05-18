@@ -188,7 +188,7 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
 .load-list{display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto;}
 .load-list::-webkit-scrollbar{width:4px;}
 .load-list::-webkit-scrollbar-thumb{background:var(--border2);}
-.load-opt{display:flex;align-items:center;gap:12px;padding:14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;}
+.load-opt{display:flex;align-items:center;justify-content:space-between;padding:14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;}
 .load-opt:hover{border-color:var(--border2);}
 .load-opt.sel{border-color:var(--amber);background:var(--amber-dim);}
 .lo-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
@@ -197,18 +197,6 @@ input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webki
 .load-opt.sel .lo-check-inner{opacity:1;}
 .lo-name{font-weight:500;font-size:0.92rem;}
 .lo-none{color:var(--txt-muted);font-style:italic;}
-
-/* ── TOAST ── */
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border2);color:var(--txt);padding:12px 20px;border-radius:var(--radius-sm);font-size:0.88rem;font-weight:500;z-index:9999;transition:transform 0.3s cubic-bezier(0.34,1.2,0.64,1),opacity 0.3s;opacity:0;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
-#toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
-#toast.ok{border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.15);color:var(--green);}
-#toast.err{border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.15);color:var(--red);}
-
-/* ── LOADING OVERLAY ── */
-#loadingScreen{display:none;position:fixed;inset:0;background:rgba(10,11,13,0.85);z-index:500;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
-#loadingScreen.show{display:flex;}
-.spinner{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--amber);border-radius:50%;animation:spin 0.8s linear infinite;}
-.loading-text{font-size:0.85rem;color:var(--txt-muted);}
 </style>
 </head>
 <body>
@@ -382,7 +370,7 @@ function formatDT(iso){
   catch{ return "N/A"; }
 }
 function getMeta(ref){ 
-  let meta = meterMeta[String(ref)] || {status:'Active',loadId:null,loadSince:null};
+  let meta = meterMeta[String(ref).trim()] || {status:'Active',loadId:null,loadSince:null};
   if(!meta.loadIds){
     meta.loadIds = meta.loadId ? [meta.loadId] : [];
   }
@@ -581,9 +569,14 @@ async function saveMeter(){
     "Manual Reading Date": $('mDate').value+"T"+$('mTime').value,
     "Units Consumed": curr-last, ref: $('originalRef').value||ref
   };
+  
+  // FIX: Force action parameter string to read 'update' to correctly match the routing block in the GAS doPost router.
+  const mode = $('meterMode').value;
+  const action = (mode === 'edit') ? 'update' : 'create';
+  
   closeMeterModal();
   setLoading(true);
-  await apiPost($('meterMode').value, payload);
+  await apiPost(action, payload);
   await load();
   toast("Meter saved ✓", "ok");
 }
@@ -637,13 +630,15 @@ function toggleSelectLoad(id){
 }
 function renderLoadList(){
   let html = `
-    <div class="load-opt ${selectedLoadIds.length===0?'sel':''}" onclick="selectedLoadIds=[];renderLoadList()">
-      <div class="lo-check"><span class="lo-check-inner">✓</span></div>
-      <span class="lo-name lo-none">No Load</span>
+    <div class="load-opt ${selectedLoadIds.length===0?'sel':''}" onclick="selectedLoadIds=[];renderLoadList()" style="width:100%;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="lo-check"><span class="lo-check-inner">✓</span></div>
+        <span class="lo-name lo-none">No Load</span>
+      </div>
     </div>
   `;
   html += loads.map(l=>`
-    <div class="load-opt ${selectedLoadIds.includes(l.id)?'sel':''}" onclick="toggleSelectLoad('${l.id}')">
+    <div class="load-opt ${selectedLoadIds.includes(l.id)?'sel':''}" onclick="toggleSelectLoad('${l.id}')" style="width:100%;">
       <div style="display:flex;align-items:center;gap:12px;flex:1;">
         <div class="lo-check"><span class="lo-check-inner">✓</span></div>
         <span class="lo-name">${escHtml(l.name)}</span>
