@@ -542,6 +542,9 @@ function renderGrid(){
         <button class="btn btn-secondary btn-sm" onclick="openChangeLoadModal('${m.ref}')">🔌 Load</button>
         <button class="btn btn-danger btn-sm" onclick="delMeter('${m.ref}')">🗑</button>
       </div>
+      <form method="POST" action="https://bill.pitc.com.pk/gbill.aspx?refno=${m.ref}" target="_blank" style="width:100%;margin:0;">
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">📄 View MEPCO Bill</button>
+      </form>
     </div>`;
   }).join('');
 }
